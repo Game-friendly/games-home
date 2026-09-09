@@ -1,0 +1,27 @@
+<view class="topbar"><view class="back" bindtap="goBack">‹ 返回</view><text>接单员主页</text></view>
+
+<view wx:if="{{w}}" class="card">
+  <view class="profile">
+    <view class="avatar">{{w.avatar || '🎮'}}</view>
+    <view class="profile-main">
+      <view class="name">{{w.nickname}}</view>
+      <view class="muted">{{w.grade}} 级 · 信用分 {{w.creditScore}}</view>
+    </view>
+    <van-button type="primary" size="small" bind:click="order">找TA下单</van-button>
+  </view>
+  <view class="stats">
+    <view class="stat"><text class="stat-num">{{w.winRate || 0}}%</text><text class="muted">胜率</text></view>
+    <view class="stat"><text class="stat-num">{{w.rating || 0}}</text><text class="muted">好评</text></view>
+    <view class="stat"><text class="stat-num">{{w.completed || 0}}</text><text class="muted">完成单数</text></view>
+    <view class="stat"><text class="stat-num">¥{{minPriceYuan}}</text><text class="muted">起价</text></view>
+  </view>
+</view>
+
+<view class="card" wx:if="{{w}}">
+  <view class="sec-title">收到的评价</view>
+  <view class="review" wx:for="{{w.reviews}}" wx:key="id">
+    <view class="row"><text class="stars">{{'★'.repeat(item.rating)}}</text><text class="muted">{{item.orderTitle}}</text></view>
+    <view class="muted">{{item.comment || '无文字评价'}}</view>
+  </view>
+  <view wx:if="{{!w.reviews.length}}" class="empty">暂无评价</view>
+</view>

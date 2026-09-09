@@ -1,0 +1,9 @@
+<view class="card item" wx:for="{{list}}" wx:key="id">
+  <view class="main" bindtap="goDetail" data-id="{{item.id}}">
+    <view class="title">{{item.title}}</view>
+    <view class="muted">{{item.status}} · ¥{{item.budget / 100}}</view>
+  </view>
+  <button size="mini" bindtap="remove" data-id="{{item.id}}">移除</button>
+</view>
+
+<view wx:if="{{!list.length}}" class="empty">还没有收藏订单</view>

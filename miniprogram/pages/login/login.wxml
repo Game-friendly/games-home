@@ -1,0 +1,26 @@
+<view class="login">
+  <view class="hero">
+    <text class="logo">{{theme.appName}}</text>
+    <text class="slogan">{{theme.slogan}}</text>
+  </view>
+
+  <van-button block round type="primary" class="wx-btn" disabled>
+    微信授权登录（演示占位）
+  </van-button>
+
+  <view class="divider">
+    <text>演示账号直接进入</text>
+  </view>
+
+  <van-cell-group inset>
+    <van-cell
+      wx:for="{{accounts}}"
+      wx:key="code"
+      title="{{item.label}}"
+      label="{{item.desc}}"
+      is-link
+      bind:click="onLogin"
+      data-code="{{item.code}}"
+    />
+  </van-cell-group>
+</view>

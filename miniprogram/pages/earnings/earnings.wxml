@@ -1,0 +1,39 @@
+<view class="topbar"><view class="back" bindtap="goBack">‹ 返回</view><text>收益与提现</text></view>
+
+<view class="card head">
+  <text>待结算总额：</text>
+  <text class="total">¥{{totalPending}}</text>
+</view>
+
+<view class="card head">
+  <view>
+    <view class="muted">可提现余额</view>
+    <view class="total">¥{{withdrawable}}</view>
+  </view>
+  <view class="withdraw">
+    <input type="digit" placeholder="金额" value="{{withdrawAmount}}" bindinput="onAmount" />
+    <button size="mini" bindtap="withdraw">申请提现</button>
+  </view>
+</view>
+
+<view class="card item" wx:for="{{list}}" wx:key="id">
+  <view class="row">
+    <text class="title">{{item.orderTitle || '订单 ' + item.orderId}}</text>
+    <text class="amount">¥{{item.amountYuan}}</text>
+  </view>
+  <view class="muted">
+    {{item.statusText}}
+    <text wx:if="{{item.settledAt}}"> · 结算于 {{item.settledAt}}</text>
+  </view>
+</view>
+
+<view class="sec-title" wx:if="{{withdrawals.length}}">提现记录</view>
+<view class="card item" wx:for="{{withdrawals}}" wx:key="id">
+  <view class="row">
+    <text class="amount">¥{{item.amountYuan}}</text>
+    <text class="muted">{{item.statusText}}</text>
+  </view>
+  <view class="muted">{{item.createdAt}}<text wx:if="{{item.remark}}"> · {{item.remark}}</text></view>
+</view>
+
+<view wx:if="{{!list.length && !withdrawals.length}}" class="empty">还没有收益记录，去大厅接单吧</view>

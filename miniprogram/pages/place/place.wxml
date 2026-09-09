@@ -1,0 +1,42 @@
+<view class="page">
+  <view wx:if="{{assignedWorkerName}}" class="assigned-worker">
+    <text>指定大神：{{assignedWorkerName}}</text>
+    <text class="assigned-clear" bindtap="clearWorker">×</text>
+  </view>
+  <van-cell-group inset>
+    <van-field label="标题" value="{{form.title}}" placeholder="如：王者荣耀陪练上分" bind:change="onInput" data-field="title" />
+    <view class="picker-cell">
+      <text class="picker-label">单等级</text>
+      <picker class="picker-fill" range="{{grades}}" value="{{gradeIndex}}" bindchange="onGrade"><view class="picker-value">{{form.grade}} 级</view></picker>
+    </view>
+    <view class="picker-cell">
+      <text class="picker-label">需要人数</text>
+      <picker class="picker-fill" range="{{people}}" value="{{peopleIndex}}" bindchange="onPeople"><view class="picker-value">{{form.requiredWorkers}} 人</view></picker>
+    </view>
+    <van-field label="价格(元)" type="number" value="{{form.budget}}" placeholder="如：20" bind:change="onInput" data-field="budget" />
+    <van-field label="联系方式" value="{{form.contact}}" placeholder="微信号 / 手机号" bind:change="onInput" data-field="contact" />
+    <van-field label="描述" type="textarea" autosize value="{{form.description}}" placeholder="段位、目标、开黑时间等要求" bind:change="onInput" data-field="description" />
+  </van-cell-group>
+
+  <van-cell-group inset title="选择分类">
+    <view class="cat-picker-panel">
+      <view class="cat-option {{form.category === item.name ? 'active' : ''}}" wx:for="{{categories}}" wx:key="name" bindtap="chooseCategory" data-category="{{item.name}}">{{item.icon}} {{item.name}}</view>
+    </view>
+  </van-cell-group>
+
+  <van-cell-group inset title="凭证图片">
+    <view class="upload-panel">
+      <view class="img-item" wx:for="{{displayImages}}" wx:key="*this">
+        <image src="{{item}}" mode="aspectFill" />
+        <view class="img-del" bindtap="removeImage" data-index="{{index}}">×</view>
+      </view>
+      <view class="img-add" bindtap="chooseImages" wx:if="{{images.length < 6}}">
+        <text>{{uploading ? '上传中' : '+'}}</text>
+      </view>
+    </view>
+  </van-cell-group>
+
+  <view class="actions">
+    <van-button type="primary" block round bind:click="submit">发布陪玩单</van-button>
+  </view>
+</view>

@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: order_platform_pg
+    environment:
+      POSTGRES_DB: order_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - order_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  backend:
+    build: ./backend
+    container_name: order_platform_backend
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DB_URL: jdbc:postgresql://postgres:5432/order_platform
+      DB_DRIVER: org.postgresql.Driver
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres123
+      JWT_SECRET: change-me-generate-a-random-secret-at-least-32-bytes
+      SEED_DEMO_DATA: "true"
+      WECHAT_APPID: ""
+      WECHAT_SECRET: ""
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+  # 抢单并发当前用悲观锁实现，Redis 不是必须；P2 做缓存/分布式锁/延迟队列时再启用
+  redis:
+    image: redis:7
+    container_name: order_platform_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  order_pg_data:

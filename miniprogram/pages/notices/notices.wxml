@@ -1,0 +1,12 @@
+<view class="topbar"><view class="back" bindtap="goBack">‹ 返回</view><text>消息</text></view>
+
+<view class="card item" wx:for="{{list}}" wx:key="id"
+      bindtap="onTap" data-id="{{item.id}}" data-read="{{item.read}}">
+  <view class="row">
+    <text class="title {{item.read ? '' : 'unread'}}">{{item.title}}</text>
+    <text class="muted">{{item.timeText}}</text>
+  </view>
+  <view class="body">{{item.body}}</view>
+</view>
+
+<view wx:if="{{!list.length}}" class="empty">暂无消息</view>

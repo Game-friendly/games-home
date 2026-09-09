@@ -1,0 +1,8 @@
+.item { margin-bottom: 10rpx; }
+.row { display: flex; justify-content: space-between; align-items: center; }
+.title { font-weight: 600; }
+.unread { color: #e03131; }
+.body { margin-top: 10rpx; color: #555; font-size: 26rpx; }
+.empty { text-align: center; color: #999; padding: 100rpx 0; }
+.topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; height: 88rpx; padding: 0 24rpx; background: #111318; color: #fff; }
+.back { color: #fff; font-size: 30rpx; margin-right: 20rpx; }

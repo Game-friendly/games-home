@@ -1,0 +1,26 @@
+<view class="search-box"><input value="{{search}}" bindinput="onSearch" placeholder="搜索游戏、大神、需求关键词" /></view>
+<view class="category-grid">
+  <view class="cat-tile {{category === '全部' ? 'active' : ''}}" bindtap="chooseCategory" data-category="全部">
+    <view class="cat-icon" style="background:#111318">✨</view>
+    <text class="cat-label">全部</text>
+  </view>
+  <view class="cat-tile {{category === item.name ? 'active' : ''}}" wx:for="{{categories}}" wx:key="name" bindtap="chooseCategory" data-category="{{item.name}}">
+    <view class="cat-icon" style="background:{{item.color}}">{{item.icon}}</view>
+    <text class="cat-label">{{item.name}}</text>
+  </view>
+</view>
+<view class="section-title">{{category}}</view>
+<view class="product-grid">
+  <view class="product" wx:for="{{filtered}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+    <view class="thumb" style="background:{{item.catColor}}">
+      <text class="thumb-icon">{{item.catIcon}}</text>
+      <text class="thumb-cat">{{item.category}}</text>
+    </view>
+    <view class="info">
+      <view class="name">{{item.title}}</view>
+      <view class="price-row"><text class="price">¥{{item.budgetYuan}}</text><text class="muted">{{item.requiredWorkers}}人</text></view>
+      <view class="muted">{{item.badge}}</view>
+    </view>
+  </view>
+</view>
+<view wx:if="{{!filtered.length}}" class="empty">暂无订单</view>

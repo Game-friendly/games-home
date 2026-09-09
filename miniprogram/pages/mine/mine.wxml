@@ -1,0 +1,55 @@
+<view class="page">
+  <view class="profile">
+    <block wx:if="{{me}}">
+      <view class="profile-main">
+        <view class="profile-name">{{me.nickname}}</view>
+        <view wx:if="{{me.role !== 'CLIENT'}}" class="muted">{{me.grade}} 级接单人 · 信用分 {{me.creditScore}}</view>
+        <view wx:else class="muted">客户</view>
+      </view>
+      <van-button size="small" round plain type="primary" bind:click="switchRole">切换身份</van-button>
+    </block>
+    <van-button wx:else size="small" round type="primary" bind:click="goLogin">去登录</van-button>
+  </view>
+
+  <van-cell-group inset>
+    <van-cell title="收益" is-link bind:click="goEarnings" />
+    <van-cell title="消息" is-link bind:click="goNotices" />
+    <van-cell title="我的积分" value="120" />
+    <van-cell title="优惠券" value="2 张可用（演示占位）" />
+  </van-cell-group>
+
+  <van-cell-group inset title="我发的单" wx:if="{{myOrders.length}}">
+    <van-cell
+      wx:for="{{myOrders}}"
+      wx:key="id"
+      title="{{item.title}}"
+      label="{{item.status}} · ¥{{item.budget / 100}}"
+      is-link
+      bind:click="goDetail"
+      data-id="{{item.id}}"
+    />
+  </van-cell-group>
+
+  <van-cell-group inset title="我的接单" wx:if="{{me && me.role !== 'CLIENT' && accepted.length}}">
+    <van-cell
+      wx:for="{{accepted}}"
+      wx:key="id"
+      title="{{item.title}}"
+      label="{{item.status}} · ¥{{item.budget / 100}}"
+      is-link
+      bind:click="goDetail"
+      data-id="{{item.id}}"
+    />
+  </van-cell-group>
+
+  <van-cell-group inset title="我的评价" wx:if="{{me && me.role !== 'CLIENT' && reviews.length}}">
+    <van-cell
+      wx:for="{{reviews}}"
+      wx:key="id"
+      title="{{item.rating}} 星 · {{item.orderTitle}}"
+      label="订单 {{item.orderId}} · {{item.comment || '无文字评价'}}"
+    />
+  </van-cell-group>
+
+  <van-empty wx:if="{{!myOrders.length && !accepted.length && !reviews.length}}" description="暂无记录" />
+</view>

@@ -1,0 +1,5 @@
+.page { padding: 24rpx 0 40rpx; }
+.profile { display: flex; align-items: center; justify-content: space-between; padding: 28rpx 40rpx; margin-bottom: 12rpx; background: #fff; }
+.profile-main { flex: 1; min-width: 0; }
+.profile-name { font-size: 36rpx; font-weight: 700; color: #1a1a2e; }
+.muted { margin-top: 8rpx; color: #999; font-size: 24rpx; }

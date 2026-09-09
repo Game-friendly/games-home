@@ -1,0 +1,43 @@
+page {
+  background: #f4f5f7;
+  font-size: 28rpx;
+  color: #17181c;
+  /* Vant Weapp 主题变量：金黑主题，和网页预览版统一 */
+  --button-primary-background-color: #f7b500;
+  --button-primary-border-color: #f7b500;
+  --button-primary-color: #17181c;
+  --button-border-radius: 8px;
+  --cell-border-color: #f0f0f0;
+  --cell-text-color: #17181c;
+  --search-content-background-color: #ffffff;
+  --tag-primary-color: #f7b500;
+  --tag-danger-color: #e03131;
+  --tag-warning-color: #e88a00;
+}
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+.btn-primary {
+  background: #f7b500;
+  color: #17181c;
+  border-radius: 12rpx;
+}
+.btn-primary[disabled] {
+  background: #ccc !important;
+  color: #fff !important;
+}
+.tag {
+  display: inline-block;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  margin-right: 12rpx;
+}
+.tag-A { background: #ffe8e8; color: #e03131; }
+.tag-B { background: #fff3e0; color: #e88a00; }
+.tag-C { background: #e8f0fe; color: #2f6fed; }
+.muted { color: #999; font-size: 24rpx; }

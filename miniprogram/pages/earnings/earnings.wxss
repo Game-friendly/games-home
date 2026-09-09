@@ -1,0 +1,12 @@
+.head { display: flex; justify-content: space-between; align-items: center; }
+.total { color: #e03131; font-weight: 700; font-size: 36rpx; }
+.item { margin-bottom: 10rpx; }
+.row { display: flex; justify-content: space-between; align-items: center; }
+.title { font-weight: 600; }
+.amount { color: #e03131; font-weight: 700; }
+.empty { text-align: center; color: #999; padding: 100rpx 0; }
+.withdraw { display: flex; align-items: center; gap: 12rpx; }
+.withdraw input { width: 160rpx; border: 1rpx solid #eee; border-radius: 8rpx; padding: 8rpx 12rpx; }
+.sec-title { margin: 24rpx 20rpx 10rpx; font-weight: 600; }
+.topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; height: 88rpx; padding: 0 24rpx; background: #111318; color: #fff; }
+.back { color: #fff; font-size: 30rpx; margin-right: 20rpx; }

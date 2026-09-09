@@ -1,0 +1,72 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: order-platform
+  # 默认 H2 内存库，clone 下来直接 java -jar 就能跑。
+  # 生产切换到 PostgreSQL：用 -Dspring-boot.run.profiles=postgres 或环境变量，见 application-postgres.yml
+  datasource:
+    url: ${DB_URL:jdbc:h2:mem:orderdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:create-drop}
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+jwt:
+  secret: ${JWT_SECRET:dev-only-secret-please-change-in-production-0123456789}
+  expire-minutes: ${JWT_EXPIRE_MINUTES:1440}
+
+app:
+  # 是否在启动时写入演示账号/订单。生产务必 false，演示本地保留 true。
+  seed-demo-data: ${SEED_DEMO_DATA:true}
+  upload-dir: ${UPLOAD_DIR:./uploads}
+  # 接单后锁定保护期（秒）。高等级可在此窗口内抢单；默认 120 秒 = 2 分钟
+  reserve-seconds: ${RESERVE_SECONDS:120}
+  # 信用分低于该值禁止接单（管理员派单不受限）
+  min-accept-credit: ${MIN_ACCEPT_CREDIT:60}
+  # 等级自动调整
+  grade-up-min-completed: ${GRADE_UP_MIN_COMPLETED:10}
+  grade-up-min-rating: ${GRADE_UP_MIN_RATING:4.5}
+  grade-up-min-credit: ${GRADE_UP_MIN_CREDIT:80}
+  grade-down-max-credit: ${GRADE_DOWN_MAX_CREDIT:40}
+  # 自动派单（默认关闭；开启后超过 30 分钟无人接单会自动分派）
+  auto-dispatch-enabled: ${AUTO_DISPATCH_ENABLED:false}
+  auto-dispatch-after-minutes: ${AUTO_DISPATCH_AFTER_MINUTES:30}
+  theme:
+    app-name: ${THEME_APP_NAME:游伴}
+    slogan: ${THEME_SLOGAN:大神陪你开黑上分}
+    primary-color: ${THEME_PRIMARY_COLOR:#f7b500}
+    categories:
+      - name: 王者荣耀陪玩
+        icon: ⚔
+        color: "#6d5df6"
+      - name: 英雄联盟陪玩
+        icon: 🏆
+        color: "#4f8cff"
+      - name: 和平精英陪玩
+        icon: 🎯
+        color: "#16a34a"
+      - name: 其他游戏
+        icon: 🎮
+        color: "#f7b500"
+      - name: 攻略教学
+        icon: 📘
+        color: "#0ea5a5"
+      - name: 组队开黑
+        icon: 👥
+        color: "#ec4899"
+  wechat:
+    enabled: ${WECHAT_ENABLED:false}
+    appid: ${WECHAT_APPID:}
+    secret: ${WECHAT_SECRET:}

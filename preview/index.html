@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>游伴 · 陪玩小程序预览</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --ink: #17181c;
+      --muted: #7a7f8a;
+      --line: #eef0f4;
+      --gold: #f7b500;
+      --gold-soft: #fff4d6;
+      --black: #111318;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e9ebf0; font-family: -apple-system, "Microsoft YaHei", sans-serif; color: var(--ink); }
+    #app { max-width: 460px; margin: 0 auto; min-height: 100vh; background: var(--bg); color: var(--ink); position: relative; padding-bottom: 76px; }
+    .topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 14px; background: var(--black); color: #fff; box-shadow: 0 1px 8px rgba(0,0,0,.15); }
+    .topbar button { border: 0; background: transparent; color: #ffd66b; font-size: 15px; cursor: pointer; font-weight: 700; }
+    .card { background: var(--card); border-radius: 8px; margin: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(17,19,24,.04); }
+    .muted { color: var(--muted); font-size: 13px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .title { font-weight: 800; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--gold-soft); color: #9a6b00; font-size: 12px; margin-right: 6px; font-weight: 700; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: var(--gold); color: #17181c; padding: 11px 16px; font-size: 14px; font-weight: 800; cursor: pointer; }
+    .btn.ghost { background: #fff; color: var(--ink); border: 1px solid #d9dce3; }
+    .btn.small { padding: 6px 10px; font-size: 12px; }
+    .field { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .field label { width: 96px; color: var(--muted); flex: 0 0 96px; font-size: 13px; }
+    .field input, .field textarea, .field select { flex: 1; border: 0; outline: none; font: inherit; background: transparent; color: var(--ink); }
+    .field textarea { height: 72px; resize: none; }
+    .actions { padding: 14px 12px; display: flex; flex-direction: column; gap: 10px; }
+    .tabs { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 460px; height: 64px; display: flex; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); z-index: 10; box-shadow: 0 -4px 16px rgba(0,0,0,.04); }
+    .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #9aa0ac; font-size: 11px; cursor: pointer; border: 0; background: transparent; }
+    .tab .tab-icon { font-size: 20px; line-height: 1; }
+    .tab.active { color: var(--ink); font-weight: 800; }
+    .price { color: #e03131; font-weight: 800; }
+    .stars { color: var(--gold); letter-spacing: 1px; }
+    .img-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .img-grid img { width: 88px; height: 88px; object-fit: cover; border-radius: 6px; background: #eef0f4; }
+    .empty { text-align: center; color: #9aa0ac; padding: 60px 12px; }
+    .account { padding: 14px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; cursor: pointer; background: #fff; }
+    .account:hover { border-color: var(--gold); }
+    .role-actions { padding: 22px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .role-card { background: #fff; border-radius: 8px; padding: 26px 16px; text-align: center; cursor: pointer; box-shadow: 0 2px 10px rgba(17,19,24,.06); }
+    .role-card:hover { outline: 2px solid var(--gold); }
+    .role-icon { font-size: 42px; margin-bottom: 12px; }
+    .role-title { font-size: 16px; font-weight: 800; color: var(--ink); }
+    .role-desc { margin-top: 8px; font-size: 12px; color: var(--muted); }
+    .login-footer { text-align: center; padding: 4px 0 24px; }
+    .loading, .error { text-align: center; color: #9aa0ac; padding: 60px 12px; }
+    .error { color: #d64545; }
+    .notice { padding: 12px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+    .notice:last-child { border-bottom: 0; }
+    .notice-title { font-weight: 600; }
+    .notice.unread .notice-title { font-weight: 800; color: #17181c; }
+    .home-header { background: var(--black); color: #fff; padding: 16px 14px 14px; }
+    .home-header .row { background: transparent; color: #fff; padding: 0; }
+    .home-header .title { color: #fff; font-size: 20px; font-weight: 800; }
+    .home-header .btn { background: var(--gold); color: #17181c; }
+    .search-box { display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 999px; padding: 9px 14px; margin-top: 12px; }
+    .search-box::before { content: '🔍'; font-size: 15px; }
+    .search-box input { flex: 1; border: 0; outline: none; font-size: 14px; color: var(--ink); background: transparent; }
+    .filters { display: flex; gap: 8px; margin-top: 10px; }
+    .filters select { flex: 1; border: 0; border-radius: 8px; background: #fff; color: var(--ink); padding: 7px 8px; font-size: 12px; }
+    .entry-grid { display: flex; gap: 12px; margin-top: 14px; }
+    .entry { flex: 1; border-radius: 8px; overflow: hidden; background: #fff; padding: 16px 12px; text-align: center; cursor: pointer; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .entry .entry-icon { font-size: 26px; display: block; margin-bottom: 6px; }
+    .entry .entry-label { font-size: 14px; font-weight: 800; }
+    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; }
+    .product { background: #fff; border-radius: 8px; overflow: hidden; cursor: pointer; box-shadow: 0 2px 10px rgba(17,19,24,.06); }
+    .product .thumb { position: relative; height: 104px; display: flex; align-items: flex-end; justify-content: flex-start; padding: 10px; color: #fff; }
+    .thumb-cat { position: absolute; left: 10px; bottom: 8px; font-size: 12px; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,.25); }
+    .status-badge { position: absolute; left: 10px; top: 8px; padding: 3px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; background: rgba(255,255,255,.92); color: var(--ink); }
+    .status-PENDING_PAYMENT { color: #d97706; }
+    .status-PUBLISHED { color: #2563eb; }
+    .status-RESERVED { color: #7c3aed; }
+    .status-ACCEPTED { color: #0d9488; }
+    .status-DELIVERED { color: #b45309; }
+    .status-COMPLETED { color: #15803d; }
+    .status-CANCELLED, .status-REFUNDED { color: #64748b; }
+    .status-DISPUTED { color: #dc2626; }
+    .fav { position: absolute; right: 8px; top: 8px; border: 0; background: rgba(0,0,0,.32); color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; }
+    .product .info { padding: 10px 11px 12px; }
+    .product .name { min-height: 40px; line-height: 20px; font-size: 14px; font-weight: 700; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .product .price-row { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .product .price { font-size: 17px; }
+    .workers { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .section-title { padding: 16px 14px 2px; font-size: 14px; font-weight: 800; color: var(--ink); }
+    .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .cat-tile { background: #fff; border-radius: 8px; padding: 12px 6px; text-align: center; cursor: pointer; box-shadow: 0 1px 3px rgba(17,19,24,.05); }
+    .cat-tile.active { outline: 2px solid var(--gold); }
+    .cat-icon { width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .cat-label { font-size: 12px; font-weight: 700; color: var(--ink); display: block; }
+    .worker-list { display: flex; flex-direction: column; gap: 10px; padding: 0 12px 12px; }
+    .worker { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(17,19,24,.05); }
+    .worker-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--gold-soft); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .worker-main { flex: 1; min-width: 0; }
+    .worker-name { font-weight: 800; font-size: 14px; }
+    .worker-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .grade-tag { font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 999px; }
+    .grade-A { background: #ffe8e8; color: #e03131; }
+    .grade-B { background: #fff3e0; color: #e88a00; }
+    .grade-C { background: #e8f0fe; color: #2f6fed; }
+    .worker-right { text-align: right; }
+    .worker-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; text-align: center; }
+    .chat-list { max-height: 260px; overflow-y: auto; margin-top: 10px; }
+    .chat-msg { display: flex; flex-direction: column; margin-bottom: 10px; }
+    .chat-msg .chat-meta { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .chat-msg .chat-name { font-weight: 700; margin-right: 6px; color: var(--ink); }
+    .chat-msg .chat-bubble { background: #f4f5f7; border-radius: 8px; padding: 8px 10px; font-size: 14px; color: var(--ink); max-width: 85%; }
+    .chat-msg.mine { align-items: flex-end; }
+    .chat-msg.mine .chat-bubble { background: var(--gold-soft); }
+    .chat-input { display: flex; gap: 8px; margin-top: 10px; }
+    .chat-input input { flex: 1; border: 1px solid #e3e6eb; border-radius: 8px; padding: 8px 10px; font-size: 14px; outline: none; }
+    .thumb-icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: 30px; opacity: .9; }
+    .cat-picker { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+    .cat-option { padding: 6px 10px; border-radius: 999px; background: #f4f5f7; border: 1px solid #e3e6eb; font-size: 12px; cursor: pointer; font-weight: 700; }
+    .cat-option.active { background: var(--black); color: #fff; border-color: var(--black); }
+    .assigned-worker { margin: 10px 0; padding: 8px 10px; border-radius: 8px; background: var(--gold-soft); font-size: 13px; font-weight: 700; }
+    .category-list { padding: 12px; }
+    .category-chip { display: inline-block; padding: 7px 14px; border-radius: 999px; background: #fff; color: var(--ink); margin: 0 8px 8px 0; cursor: pointer; font-size: 13px; border: 1px solid #e3e6eb; }
+    .category-chip.active { background: var(--black); color: #fff; border-color: var(--black); }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    const root = document.getElementById('app');
+    const DEFAULT_THEME = {
+      appName: '游伴',
+      slogan: '大神陪你开黑上分',
+      primaryColor: '#f7b500',
+      categories: [
+        { name: '王者荣耀陪玩', icon: '⚔', color: '#6d5df6' },
+        { name: '英雄联盟陪玩', icon: '🏆', color: '#4f8cff' },
+        { name: '和平精英陪玩', icon: '🎯', color: '#16a34a' },
+        { name: '其他游戏', icon: '🎮', color: '#f7b500' },
+        { name: '攻略教学', icon: '📘', color: '#0ea5a5' },
+        { name: '组队开黑', icon: '👥', color: '#ec4899' }
+      ]
+    };
+    const S = {
+      token: localStorage.getItem('token') || '',
+      me: JSON.parse(localStorage.getItem('me') || 'null'),
+      theme: DEFAULT_THEME,
+      topWorkers: [],
+      route: 'pool',
+      prev: 'pool',
+      params: {},
+      search: '',
+      category: '全部',
+      pool: [], myOrders: [], accepted: [], reviews: [], notices: [],
+      earnings: [], withdrawals: [], withdrawable: 0,
+      detail: null, disputeOpen: false, loading: false, error: '',
+      messages: [], detailTimer: null,
+      worker: null,
+      gradeFilter: '全部', peopleFilter: '全部', sort: 'new',
+      uploads: [],
+      favorites: JSON.parse(localStorage.getItem('favorites') || '[]'),
+      form: { title: '', category: DEFAULT_THEME.categories[0].name, grade: 'C', requiredWorkers: 1, budget: '', contact: '', description: '', assignedWorkerId: null, assignedWorkerName: '' }
+    };
+
+    function api(path, method = 'GET', data) {
+      const headers = {};
+      if (S.token) headers.Authorization = 'Bearer ' + S.token;
+      if (data !== undefined) headers['Content-Type'] = 'application/json';
+      return fetch(path, {
+        method,
+        headers,
+        body: data === undefined ? undefined : JSON.stringify(data)
+      }).then(async res => {
+        const body = await res.json().catch(() => ({}));
+        if (res.status === 401) { logout(); throw new Error('未登录'); }
+        if (body.code !== 0) throw new Error(body.msg || '请求失败');
+        return body.data;
+      });
+    }
+
+    function yuan(fen) { return ((fen || 0) / 100).toFixed(2); }
+    function isFav(id) { return S.favorites.some(o => o.id === Number(id)); }
+    function toggleFavorite(o) {
+      if (!o) return;
+      S.favorites = isFav(o.id)
+        ? S.favorites.filter(x => x.id !== o.id)
+        : [o, ...S.favorites];
+      localStorage.setItem('favorites', JSON.stringify(S.favorites));
+      if (S.route === 'cart') renderCart();
+      else if (S.route === 'pool') renderPool();
+      else if (S.route === 'category') renderCategory();
+      else if (S.route === 'detail') loadDetail(o.id);
+    }
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function statusText(s) { return ({ PENDING_PAYMENT:'待支付', PUBLISHED:'待接单', RESERVED:'锁定中', ACCEPTED:'进行中', DELIVERED:'待确认', COMPLETED:'已完成', CANCELLED:'已取消', REFUNDED:'已退款', DISPUTED:'争议中' })[s] || s; }
+    function catMeta(cat) {
+      const list = S.theme.categories || DEFAULT_THEME.categories;
+      return list.find(c => c.name === cat) || { name: cat || '其他', icon: '🎮', color: '#24283b' };
+    }
+    function toast(msg) { alert(msg); }
+
+    function login(code) {
+      api('/api/auth/login', 'POST', { code }).then(d => {
+        S.token = d.token;
+        S.me = { userId: d.userId, role: d.role, grade: d.grade };
+        localStorage.setItem('token', S.token);
+        localStorage.setItem('me', JSON.stringify(S.me));
+        navigate('pool');
+      }).catch(e => toast(e.message));
+    }
+
+    function logout() {
+      S.token = ''; S.me = null;
+      localStorage.removeItem('token'); localStorage.removeItem('me');
+      navigate('login', {}, true);
+    }
+
+    function navigate(page, params = {}, replace = false) {
+      if (!replace && page !== S.route) S.prev = S.route;
+      if (page !== 'detail') clearInterval(S.detailTimer);
+      S.route = page; S.params = params;
+      const state = { page, params };
+      if (replace) history.replaceState(state, '', '#/' + page);
+      else history.pushState(state, '', '#/' + page);
+      loadRoute();
+    }
+
+    function loadRoute() {
+      if (!S.token && S.route !== 'login') { renderLogin(); return; }
+      S.loading = false; S.error = '';
+      if (S.route === 'login') renderLogin();
+      else if (S.route === 'pool') loadPool();
+      else if (S.route === 'category') { if (!S.pool.length) loadPool(); else renderCategory(); }
+      else if (S.route === 'cart') renderCart();
+      else if (S.route === 'place') renderPlace();
+      else if (S.route === 'mine') loadMine();
+      else if (S.route === 'earnings') loadEarnings();
+      else if (S.route === 'notices') loadNotices();
+      else if (S.route === 'detail') loadDetail(S.params.id);
+      else if (S.route === 'worker') loadWorker(S.params.id);
+    }
+
+    function withLoading(fn) {
+      S.loading = true; S.error = '';
+      render();
+      return fn().catch(e => { S.error = e.message; render(); });
+    }
+
+    function loadPool() {
+      withLoading(() => Promise.all([
+        api('/api/orders/pool'),
+        api('/api/workers/top')
+      ]).then(([list, workers]) => {
+        S.pool = list; S.topWorkers = workers; S.loading = false; render();
+      }));
+    }
+
+    function loadMine() {
+      withLoading(() => Promise.all([
+        api('/api/me'),
+        api('/api/orders/my'),
+        S.me && S.me.role !== 'CLIENT' ? api('/api/orders/accepted') : Promise.resolve([]),
+        S.me && S.me.role !== 'CLIENT' ? api('/api/reviews/mine') : Promise.resolve([])
+      ]).then(([me, myOrders, accepted, reviews]) => {
+        S.me = me; S.myOrders = myOrders; S.accepted = accepted; S.reviews = reviews;
+        localStorage.setItem('me', JSON.stringify(me));
+        S.loading = false; render();
+      }));
+    }
+
+    function loadEarnings() {
+      withLoading(() => Promise.all([
+        api('/api/earnings/mine'),
+        api('/api/earnings/withdrawable'),
+        api('/api/earnings/withdrawals')
+      ]).then(([earnings, wd, withdrawals]) => {
+        S.earnings = earnings; S.withdrawable = wd.amount; S.withdrawals = withdrawals;
+        S.loading = false; render();
+      }));
+    }
+
+    function loadNotices() {
+      withLoading(() => api('/api/notices').then(list => {
+        S.notices = list; S.loading = false; render();
+      }));
+    }
+
+    function loadDetail(id) {
+      clearInterval(S.detailTimer);
+      S.detailTimer = setInterval(() => {
+        if (S.route === 'detail' && S.detail) refreshMessages();
+      }, 8000);
+      withLoading(() => Promise.all([
+        api('/api/orders/' + id),
+        api('/api/orders/' + id + '/dispute').catch(() => ({ open: false })),
+        api('/api/orders/' + id + '/messages').catch(() => [])
+      ]).then(([detail, d, messages]) => {
+        S.detail = detail;
+        S.disputeOpen = d.open;
+        S.messages = messages;
+        S.loading = false; render();
+      }));
+    }
+
+    function markNotice(id) {
+      api('/api/notices/' + id + '/read', 'POST').then(() => loadNotices()).catch(e => toast(e.message));
+    }
+
+    function submitOrder() {
+      const f = S.form;
+      api('/api/orders', 'POST', {
+        title: f.title, category: f.category, grade: f.grade, requiredWorkers: Number(f.requiredWorkers),
+        budget: Math.round(parseFloat(f.budget || '0') * 100), contact: f.contact,
+        description: f.description, images: S.uploads, assignedWorkerId: f.assignedWorkerId
+      }).then(d => {
+        toast('下单成功');
+        S.form = { title:'', category:'', grade:'C', requiredWorkers:1, budget:'', contact:'', description:'' };
+        S.uploads = [];
+        navigate('detail', { id: d.id });
+      }).catch(e => toast(e.message));
+    }
+
+    function upload(file) {
+      const fd = new FormData(); fd.append('file', file);
+      fetch('/api/uploads', { method: 'POST', headers: { Authorization: 'Bearer ' + S.token }, body: fd })
+        .then(r => r.json()).then(b => {
+          if (b.code === 0) { S.uploads.push(b.data.url); render(); }
+          else toast(b.msg);
+        });
+    }
+
+    function act(path, ok, data) {
+      if (!S.detail) return;
+      api('/api/orders/' + S.detail.id + path, 'POST', data || {}).then(() => {
+        toast(ok); loadDetail(S.detail.id);
+      }).catch(e => toast(e.message));
+    }
+
+    function pay() {
+      if (!S.detail) return;
+      api('/api/payments/orders/' + S.detail.id + '/pay', 'POST').then(() => {
+        toast('支付成功');
+        loadDetail(S.detail.id);
+      }).catch(e => toast(e.message));
+    }
+
+    function dispute() {
+      const reason = prompt('请填写争议原因');
+      if (reason === null) return;
+      api('/api/orders/' + S.detail.id + '/dispute', 'POST', { reason }).then(() => {
+        toast('已提交争议'); loadDetail(S.detail.id);
+      }).catch(e => toast(e.message));
+    }
+
+    function review(target) {
+      const rating = Number(prompt('评分 1-5', '5'));
+      const comment = prompt('评价内容（可选）') || '';
+      api('/api/orders/' + S.detail.id + '/review', 'POST', { toId: Number(target), rating, comment }).then(() => {
+        toast('已评价'); loadDetail(S.detail.id);
+      }).catch(e => toast(e.message));
+    }
+
+    function withdraw() {
+      const amount = Math.round(parseFloat(prompt('提现金额（元）') || '0') * 100);
+      if (amount <= 0) return toast('请输入有效金额');
+      api('/api/earnings/withdrawals', 'POST', { amount }).then(() => {
+        toast('已提交提现'); loadEarnings();
+      }).catch(e => toast(e.message));
+    }
+
+    function render() {
+      if (S.route === 'login') return renderLogin();
+      if (S.route === 'pool') return renderPool();
+      if (S.route === 'category') return renderCategory();
+      if (S.route === 'cart') return renderCart();
+      if (S.route === 'place') return renderPlace();
+      if (S.route === 'mine') return renderMine();
+      if (S.route === 'earnings') return renderEarnings();
+      if (S.route === 'notices') return renderNotices();
+      if (S.route === 'detail') return renderDetail();
+      if (S.route === 'worker') return renderWorker();
+    }
+
+    function tabs(active) {
+      const items = [['pool','🏠','首页'],['category','🧭','分类'],['cart','⭐','收藏'],['mine','👤','我的']];
+      return `<nav class="tabs">${items.map(([k,i,l]) => `<button class="tab ${active===k?'active':''}" data-action="tab" data-page="${k}"><span class="tab-icon">${i}</span><span>${l}</span></button>`).join('')}</nav>`;
+    }
+
+    function topbar(title, back = true) {
+      return `<div class="topbar">${back ? '<button data-action="back">‹ 返回</button>' : ''}<span>${esc(title)}</span></div>`;
+    }
+
+    function renderLogin() {
+      root.innerHTML = `
+        <div style="padding:44px 20px 26px;text-align:center;background:var(--black);color:#fff">
+          <div style="font-size:30px;font-weight:800">${esc(S.theme.appName)}</div>
+          <div style="margin-top:8px;color:#ffd66b;font-size:14px">${esc(S.theme.slogan)}</div>
+        </div>
+        <div class="role-actions">
+          <div class="role-card" data-action="login" data-code="demo_client_1">
+            <div class="role-icon">🙋</div>
+            <div class="role-title">我要发布需求</div>
+            <div class="role-desc">找大神帮忙解决任务</div>
+          </div>
+          <div class="role-card" data-action="login" data-code="demo_worker_a">
+            <div class="role-icon">🎮</div>
+            <div class="role-title">我要接单赚钱</div>
+            <div class="role-desc">展示技术，抢单接活</div>
+          </div>
+        </div>
+        <div class="login-footer"><span class="muted" data-action="login" data-code="demo_admin" style="cursor:pointer">管理员入口</span></div>`;
+    }
+
+    function renderPool() {
+      if (S.loading) return root.innerHTML = `${tabs('pool')}<div class="loading">加载中...</div>`;
+      if (S.error) return root.innerHTML = `${tabs('pool')}<div class="error">${esc(S.error)}</div>`;
+      const rows = filteredOrders().map(productCard).join('');
+      const cats = (S.theme.categories || []).map(c => `
+        <div class="cat-tile" data-action="category-entry" data-category="${esc(c.name)}">
+          <span class="cat-icon" style="background:${c.color}">${c.icon}</span>
+          <span class="cat-label">${esc(c.name)}</span>
+        </div>`).join('');
+      const workers = (S.topWorkers || []).slice(0, 6).map(workerCard).join('');
+      root.innerHTML = `${tabs('pool')}
+        <div class="home-header">
+          <div class="row"><div class="title">${esc(S.theme.appName)}</div><div><button class="btn small" data-action="place-entry">＋ 发布陪玩单</button> <button class="btn small" data-action="refresh-pool">↻ 刷新</button></div></div>
+          <div class="search-box"><input data-search="true" value="${esc(S.search)}" placeholder="搜索游戏、大神、需求关键词"></div>
+          <div class="filters">
+            <select data-filter="gradeFilter">
+              <option ${S.gradeFilter==='全部'?'selected':''}>全部</option>
+              ${['A','B','C'].map(g=>`<option ${S.gradeFilter===g?'selected':''}>${g}级</option>`).join('')}
+            </select>
+            <select data-filter="peopleFilter">
+              <option ${S.peopleFilter==='全部'?'selected':''}>全部</option>
+              <option ${S.peopleFilter==='1人'?'selected':''}>1人</option>
+              <option ${S.peopleFilter==='2人以上'?'selected':''}>2人以上</option>
+            </select>
+            <select data-filter="sort">
+              <option value="new" ${S.sort==='new'?'selected':''}>最新</option>
+              <option value="price" ${S.sort==='price'?'selected':''}>价格从低到高</option>
+              <option value="priceDesc" ${S.sort==='priceDesc'?'selected':''}>价格从高到低</option>
+            </select>
+          </div>
+          <div class="category-grid">
+            ${cats}
+            <div class="cat-tile" data-action="service">
+              <span class="cat-icon" style="background:#111318">💬</span>
+              <span class="cat-label">联系客服</span>
+            </div>
+          </div>
+        </div>
+        <div class="section-title">🔥 大神榜</div>
+        <div class="worker-list">${workers || '<div class="empty">暂无大神入驻</div>'}</div>
+        <div class="section-title">🎮 热门陪玩单</div>
+        <div class="product-grid" id="result-grid">${rows || '<div class="empty">暂无订单</div>'}</div>`;
+    }
+
+    function filteredOrders() {
+      const kw = S.search.trim().toLowerCase();
+      let list = S.pool.filter(o => {
+        if (S.category !== '全部' && o.category !== S.category) return false;
+        if (S.gradeFilter !== '全部' && o.grade !== S.gradeFilter) return false;
+        if (S.peopleFilter === '1人' && o.requiredWorkers !== 1) return false;
+        if (S.peopleFilter === '2人以上' && o.requiredWorkers < 2) return false;
+        if (!kw) return true;
+        return [o.title, o.category, o.description].some(v => (v || '').toLowerCase().includes(kw));
+      });
+      if (S.sort === 'price') list = list.slice().sort((a, b) => a.budget - b.budget);
+      else if (S.sort === 'priceDesc') list = list.slice().sort((a, b) => b.budget - a.budget);
+      else list = list.slice().sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+      return list;
+    }
+
+    function productCard(o) {
+      const cat = catMeta(o.category);
+      return `<div class="product" data-action="detail" data-id="${o.id}">
+        <div class="thumb" style="background:${cat.color}">
+          <span class="thumb-icon">${cat.icon}</span>
+          <span class="status-badge status-${o.status}">${statusText(o.status)}</span>
+          <span class="thumb-cat">${esc(cat.name)}</span>
+          <button class="fav" data-action="fav" data-id="${o.id}">${isFav(o.id) ? '♥' : '♡'}</button>
+        </div>
+        <div class="info">
+          <div class="name">${esc(o.title)}</div>
+          <div class="price-row"><span class="price">¥${yuan(o.budget)}</span><span class="workers">👥 ${o.requiredWorkers}人</span></div>
+        </div>
+      </div>`;
+    }
+
+    function workerCard(w) {
+      return `<div class="worker" data-action="worker" data-id="${w.id}">
+        <div class="worker-avatar">${esc(w.avatar || '🎮')}</div>
+        <div class="worker-main">
+          <div class="worker-name">${esc(w.nickname)}</div>
+          <div class="worker-meta"><span class="grade-tag grade-${esc(w.grade)}">${esc(w.grade)}级</span><span class="muted">胜率 ${w.winRate || 0}% · 好评 ${w.rating || 0}</span></div>
+        </div>
+        <div class="worker-right">
+          <div class="price">¥${yuan(w.minPrice)}起</div>
+          <div class="muted">已接 ${w.completed || 0} 单</div>
+        </div>
+      </div>`;
+    }
+
+    function renderResults() {
+      const grid = document.getElementById('result-grid');
+      if (!grid) return;
+      const rows = filteredOrders().map(productCard).join('');
+      grid.innerHTML = rows || '<div class="empty">暂无订单</div>';
+    }
+
+    function messagesHtml() {
+      const meId = S.me && (S.me.userId || S.me.id);
+      return (S.messages || []).map(m => {
+        const mine = m.senderId === meId;
+        return `<div class="chat-msg ${mine ? 'mine' : ''}">
+          <div class="chat-meta"><span class="chat-name">${esc(m.senderName)}</span><span class="muted">${esc((m.createdAt || '').replace('T', ' '))}</span></div>
+          <div class="chat-bubble">${esc(m.content)}</div>
+        </div>`;
+      }).join('') || '<div class="empty">暂无留言</div>';
+    }
+
+    function refreshMessages() {
+      if (!S.detail) return;
+      api('/api/orders/' + S.detail.id + '/messages').then(list => {
+        S.messages = list;
+        const el = document.getElementById('chat-list');
+        if (el) el.innerHTML = messagesHtml();
+      }).catch(() => {});
+    }
+
+    function sendMessage() {
+      if (!S.detail) return;
+      const input = document.getElementById('chat-input');
+      const content = (input && input.value || '').trim();
+      if (!content) return;
+      api('/api/orders/' + S.detail.id + '/messages', 'POST', { content }).then(() => {
+        if (input) input.value = '';
+        refreshMessages();
+      }).catch(e => toast(e.message));
+    }
+
+    function renderCategory() {
+      if (S.loading) return root.innerHTML = `${tabs('category')}<div class="loading">加载中...</div>`;
+      if (S.error) return root.innerHTML = `${tabs('category')}<div class="error">${esc(S.error)}</div>`;
+      const cats = (S.theme.categories || []).map(c => `
+        <div class="cat-tile ${S.category === c.name ? 'active' : ''}" data-action="set-category" data-category="${esc(c.name)}">
+          <span class="cat-icon" style="background:${c.color}">${c.icon}</span>
+          <span class="cat-label">${esc(c.name)}</span>
+        </div>`).join('');
+      root.innerHTML = `${tabs('category')}
+        <div class="home-header">
+          <div class="title">分类</div>
+          <div class="search-box"><input data-search="true" value="${esc(S.search)}" placeholder="搜索订单"></div>
+          <div class="category-grid">
+            <div class="cat-tile ${S.category === '全部' ? 'active' : ''}" data-action="set-category" data-category="全部">
+              <span class="cat-icon" style="background:#111318">✨</span>
+              <span class="cat-label">全部</span>
+            </div>
+            ${cats}
+          </div>
+        </div>
+        <div class="section-title">${esc(S.category)}</div>
+        <div class="product-grid" id="result-grid">${filteredOrders().map(productCard).join('') || '<div class="empty">暂无订单</div>'}</div>`;
+    }
+
+    function renderCart() {
+      const rows = S.favorites.map(o => `
+        <div class="card row" style="cursor:pointer">
+          <div style="flex:1" data-action="detail" data-id="${o.id}">
+            <div class="title">${esc(o.title)}</div>
+            <div class="muted">${statusText(o.status)} · ¥${yuan(o.budget)}</div>
+          </div>
+          <button class="btn ghost small" data-action="unfav" data-id="${o.id}">移除</button>
+        </div>`).join('');
+      root.innerHTML = `${tabs('cart')}<div class="card"><b>我的收藏</b></div>${rows || '<div class="empty">还没有收藏订单</div>'}`;
+    }
+
+    function renderPlace() {
+      const f = S.form;
+      root.innerHTML = `${topbar('发布陪玩单')}<div class="card"><div class="title">发布陪玩需求</div>
+        ${f.assignedWorkerName ? `<div class="assigned-worker">指定大神：${esc(f.assignedWorkerName)} <span data-action="clear-worker" style="cursor:pointer;color:#d64545">×</span></div>` : ''}
+        <div class="field"><label>标题</label><input data-field="title" value="${esc(f.title)}" placeholder="如：王者荣耀陪练上分"></div>
+        <div class="field"><label>分类</label><div class="cat-picker">${(S.theme.categories || []).map(c => `<span class="cat-option ${f.category === c.name ? 'active' : ''}" data-action="pick-category" data-value="${esc(c.name)}">${c.icon} ${esc(c.name)}</span>`).join('')}</div></div>
+        <div class="field"><label>单等级</label><select data-field="grade">${['A','B','C'].map(g=>`<option ${f.grade===g?'selected':''}>${g}</option>`).join('')}</select></div>
+        <div class="field"><label>需要人数</label><select data-field="requiredWorkers">${[1,2,3,4,5].map(n=>`<option ${Number(f.requiredWorkers)===n?'selected':''}>${n}</option>`).join('')}</select></div>
+        <div class="field"><label>价格(元)</label><input data-field="budget" value="${esc(f.budget)}" placeholder="20"></div>
+        <div class="field"><label>联系方式</label><input data-field="contact" value="${esc(f.contact)}" placeholder="微信号 / 手机号"></div>
+        <div class="field"><label>描述</label><textarea data-field="description" placeholder="段位、目标、开黑时间等要求">${esc(f.description)}</textarea></div>
+        <div class="muted" style="margin:12px 0">凭证图片</div>
+        <div class="img-grid">${S.uploads.map(u=>`<img src="${u}">`).join('')}</div>
+        <input type="file" accept="image/*" data-upload="true">
+      </div>
+      <div class="actions"><button class="btn" data-action="submit-order">发布陪玩单</button></div>`;
+    }
+
+    function renderMine() {
+      if (S.loading) return root.innerHTML = `${tabs('mine')}<div class="loading">加载中...</div>`;
+      if (S.error) return root.innerHTML = `${tabs('mine')}<div class="error">${esc(S.error)}</div>`;
+      const me = S.me || {};
+      const worker = me.role !== 'CLIENT';
+      root.innerHTML = `${tabs('mine')}
+        <div class="card"><div class="row">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:46px;height:46px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:22px">${worker?'🧑‍🔧':'🙋'}</div>
+            <div><div class="title">${esc(me.nickname || me.openid || '')}</div>
+            <div class="muted">${worker ? (me.grade + ' 级接单人 · 信用分 ' + me.creditScore) : '客户'}</div></div>
+          </div>
+          <button class="btn ghost small" data-action="logout">切换身份</button></div></div>
+        <div class="card" style="cursor:pointer" data-action="tab" data-page="earnings"><div class="row"><span style="font-weight:800">💰 收益与提现</span><span class="muted">›</span></div></div>
+        <div class="card" style="cursor:pointer" data-action="tab" data-page="notices"><div class="row"><span style="font-weight:800">🔔 消息</span><span class="muted">›</span></div></div>
+        <div class="card"><div class="row"><span style="font-weight:800">🎫 我的积分</span><span class="price">120</span></div><div class="row" style="margin-top:10px"><span style="font-weight:800">🧧 优惠券</span><span class="muted">2 张可用（演示占位）</span></div></div>
+        <div class="card"><b>我发的单</b>${S.myOrders.map(orderRow).join('')||'<div class="muted">暂无</div>'}</div>
+        ${worker?`<div class="card"><b>我的接单</b>${S.accepted.map(orderRow).join('')||'<div class="muted">暂无</div>'}</div>
+        <div class="card"><b>我的评价</b>${S.reviews.map(r=>`<div class="row"><span class="stars">${'★'.repeat(r.rating)}</span><span>${esc(r.orderTitle)}</span></div><div class="muted">${esc(r.comment||'')}</div>`).join('')||'<div class="muted">暂无评价</div>'}</div>`:''}`;
+    }
+
+    function orderRow(o) {
+      return `<div class="card" data-action="detail" data-id="${o.id}"><div class="row"><span class="tag">${o.grade}</span><span>${esc(o.title)}</span></div><div class="muted">${statusText(o.status)} · ¥${yuan(o.budget)}</div></div>`;
+    }
+
+    function renderEarnings() {
+      if (S.loading) return root.innerHTML = `${topbar('收益与提现')}<div class="loading">加载中...</div>`;
+      if (S.error) return root.innerHTML = `${topbar('收益与提现')}<div class="error">${esc(S.error)}</div>`;
+      root.innerHTML = `${topbar('收益与提现')}
+        <div class="card"><div class="row"><div><div class="muted">可提现余额</div><div class="price">¥${yuan(S.withdrawable)}</div></div><button class="btn" data-action="withdraw">申请提现</button></div></div>
+        <div class="card"><b>收益记录</b>${S.earnings.map(e=>`<div class="row"><span>${esc(e.orderTitle||('订单 '+e.orderId))}</span><span class="price">¥${yuan(e.amount)}</span></div><div class="muted">${e.status==='SETTLED'?'已结算':'待结算'}</div>`).join('')||'<div class="muted">暂无</div>'}</div>
+        <div class="card"><b>提现记录</b>${S.withdrawals.map(w=>`<div class="row"><span>¥${yuan(w.amount)}</span><span class="muted">${w.status==='PAID'?'已打款':w.status==='REJECTED'?'已驳回':'审核中'}</span></div>`).join('')||'<div class="muted">暂无</div>'}</div>`;
+    }
+
+    function renderNotices() {
+      if (S.loading) return root.innerHTML = `${topbar('消息')}<div class="loading">加载中...</div>`;
+      if (S.error) return root.innerHTML = `${topbar('消息')}<div class="error">${esc(S.error)}</div>`;
+      root.innerHTML = `${topbar('消息')}<div class="card">${S.notices.map(n=>`
+        <div class="notice ${n.read?'':'unread'}" data-action="notice" data-id="${n.id}" data-read="${n.read}">
+          <div class="row"><span class="notice-title">${esc(n.title)}</span><span class="muted">${esc(n.createdAt||'').replace('T',' ')}</span></div>
+          <div class="muted">${esc(n.body)}</div>
+        </div>`).join('')||'<div class="empty">暂无消息</div>'}</div>`;
+    }
+
+    function renderDetail() {
+      if (S.loading) return root.innerHTML = `${topbar('订单详情')}<div class="loading">加载中...</div>`;
+      if (S.error) return root.innerHTML = `${topbar('订单详情')}<div class="error">${esc(S.error)}</div>`;
+      const o = S.detail; if (!o) return;
+      const meId = S.me && (S.me.userId || S.me.id);
+      const isBuyer = meId === o.buyerId;
+      const mySlot = (o.workers||[]).find(w => w.workerId === meId);
+      const canAccept = o.status==='PUBLISHED' && S.me.role==='WORKER' && !isBuyer && !mySlot && o.filledWorkers < o.requiredWorkers;
+      const canWithdraw = mySlot && (mySlot.status==='RESERVED'||mySlot.status==='ACCEPTED') && !mySlot.submittedAt;
+      const canComplete = mySlot && mySlot.status==='ACCEPTED' && !mySlot.submittedAt;
+      const canConfirm = isBuyer && o.status==='DELIVERED';
+      const canPay = isBuyer && o.status==='PENDING_PAYMENT';
+      const canDispute = (isBuyer||!!mySlot) && ['ACCEPTED','DELIVERED','COMPLETED'].includes(o.status) && !S.disputeOpen;
+      const workers = (o.workers||[]).map(w => `<div class="row"><span>${w.workerGrade} 级接单人</span><span class="muted">${w.status}</span>${w.status==='RESERVED'&&S.me.role==='WORKER'&&!isBuyer&&w.workerId!==meId?`<button class="btn small" data-action="steal" data-target="${w.workerId}">抢单</button>`:''}</div>`).join('');
+      root.innerHTML = `${topbar('订单详情')}<div class="card">
+        <div class="row"><span class="tag">${o.grade}</span><span>${esc(o.orderNo)}</span></div>
+        <div class="title">${esc(o.title)}</div><div class="price">¥${yuan(o.budget)}</div>
+        <div class="muted">${esc(o.description||'无描述')}</div>
+        <div class="muted">状态：${statusText(o.status)} · ${o.requiredWorkers}人 / 已接${o.filledWorkers}人</div>
+        ${o.contact?`<div class="muted">联系：${esc(o.contact)}</div>`:''}
+        ${o.status==='DISPUTED'?'<div class="muted">正在争议处理中</div>':''}
+      </div>
+      ${o.images&&o.images.length?`<div class="card"><b>凭证图片</b><div class="img-grid">${o.images.map(u=>`<img src="${u}">`).join('')}</div></div>`:''}
+      <div class="card"><b>接单位置</b>${workers||'<div class="muted">暂无接单人</div>'}</div>
+      <div class="card"><b>沟通留言</b>
+        <div class="chat-list" id="chat-list">${messagesHtml()}</div>
+        <div class="chat-input"><input id="chat-input" placeholder="输入留言..."><button class="btn small" data-action="send-message">发送</button></div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost small" data-action="fav" data-id="${o.id}">${isFav(o.id) ? '取消收藏' : '收藏订单'}</button>
+        ${canPay?'<button class="btn" data-action="pay">去支付</button>':''}
+        ${canAccept?'<button class="btn" data-action="accept">接单</button>':''}
+        ${canWithdraw?'<button class="btn ghost" data-action="withdraw-order">取消接单</button>':''}
+        ${canComplete?'<button class="btn" data-action="complete">提交完成</button>':''}
+        ${canConfirm?'<button class="btn" data-action="confirm">确认完成</button>':''}
+        ${canDispute?'<button class="btn ghost" data-action="dispute">发起争议</button>':''}
+        ${isBuyer&&o.status==='COMPLETED'? (o.workers||[]).map(w=>`<button class="btn small" data-action="review" data-target="${w.workerId}">评价 ${w.workerGrade} 级</button>`).join(''):''}
+      </div>`;
+    }
+
+    function loadWorker(id) {
+      withLoading(() => api('/api/workers/' + id).then(w => {
+        S.worker = w; S.loading = false; render();
+      }));
+    }
+
+    function renderWorker() {
+      if (S.loading) return root.innerHTML = `${topbar('接单员主页')}<div class="loading">加载中...</div>`;
+      if (S.error) return root.innerHTML = `${topbar('接单员主页')}<div class="error">${esc(S.error)}</div>`;
+      const w = S.worker; if (!w) return;
+      root.innerHTML = `${topbar('接单员主页')}
+        <div class="card">
+          <div class="row">
+            <div class="worker-avatar" style="font-size:34px">${esc(w.avatar || '🎮')}</div>
+            <div style="flex:1"><div class="title">${esc(w.nickname)}</div>
+            <div class="muted">${w.grade} 级 · 信用分 ${w.creditScore}</div></div>
+            <button class="btn" data-action="order-worker">找TA下单</button>
+          </div>
+          <div class="worker-stats">
+            <div><div class="price">${w.winRate || 0}%</div><div class="muted">胜率</div></div>
+            <div><div class="price">${w.rating || 0}</div><div class="muted">好评</div></div>
+            <div><div class="price">${w.completed || 0}</div><div class="muted">完成单数</div></div>
+            <div><div class="price">¥${yuan(w.minPrice)}</div><div class="muted">起价</div></div>
+          </div>
+        </div>
+        <div class="card"><b>收到的评价</b>${(w.reviews||[]).map(r=>`<div class="notice"><div class="row"><span class="stars">${'★'.repeat(r.rating)}</span><span class="muted">${esc(r.orderTitle||'')}</span></div><div class="muted">${esc(r.comment||'')}</div></div>`).join('')||'<div class="muted">暂无评价</div>'}</div>`;
+    }
+
+    root.addEventListener('click', e => {
+      const el = e.target.closest('[data-action]');
+      if (!el) return;
+      const action = el.dataset.action;
+      const id = el.dataset.id;
+      const page = el.dataset.page;
+      if (action === 'login') login(el.dataset.code);
+      else if (action === 'logout') logout();
+      else if (action === 'tab') navigate(page);
+      else if (action === 'back') navigate(S.prev || 'pool');
+      else if (action === 'fav') {
+        const o = S.pool.find(x => x.id === Number(id)) || (S.detail && S.detail.id === Number(id) ? S.detail : null);
+        toggleFavorite(o);
+      }
+      else if (action === 'unfav') {
+        S.favorites = S.favorites.filter(x => x.id !== Number(id));
+        localStorage.setItem('favorites', JSON.stringify(S.favorites));
+        renderCart();
+      }
+      else if (action === 'detail') navigate('detail', { id: Number(id) });
+      else if (action === 'refresh-pool') loadPool();
+      else if (action === 'category-entry') { S.category = el.dataset.category || '全部'; navigate('category'); }
+      else if (action === 'service') toast('如有订单或开黑问题，请联系右下角客服');
+      else if (action === 'set-category') { S.category = el.dataset.category; renderCategory(); }
+      else if (action === 'pick-category') { S.form.category = el.dataset.value; renderPlace(); }
+      else if (action === 'place-entry') {
+        S.form.category = (S.theme.categories[0] || {}).name || S.form.category;
+        navigate('place');
+      }
+      else if (action === 'worker') navigate('worker', { id: Number(id) });
+      else if (action === 'order-worker') {
+        if (!S.worker) return;
+        S.form.assignedWorkerId = S.worker.id;
+        S.form.assignedWorkerName = S.worker.nickname;
+        S.form.category = (S.theme.categories[0] || {}).name || S.form.category;
+        navigate('place');
+      }
+      else if (action === 'clear-worker') {
+        S.form.assignedWorkerId = null;
+        S.form.assignedWorkerName = '';
+        renderPlace();
+      }
+      else if (action === 'submit-order') submitOrder();
+      else if (action === 'pay') pay();
+      else if (action === 'notice') { if (el.dataset.read !== 'true') markNotice(Number(id)); }
+      else if (action === 'accept') act('/accept', '接单成功');
+      else if (action === 'steal') act('/steal', '抢单成功', { targetWorkerId: Number(el.dataset.target) });
+      else if (action === 'withdraw-order') act('/withdraw', '已退单');
+      else if (action === 'complete') act('/complete', '已提交完成');
+      else if (action === 'confirm') act('/confirm', '已确认完成');
+      else if (action === 'dispute') dispute();
+      else if (action === 'review') review(el.dataset.target);
+      else if (action === 'withdraw') withdraw();
+      else if (action === 'send-message') sendMessage();
+    });
+
+    root.addEventListener('input', e => {
+      const el = e.target.closest('[data-field]');
+      if (el) S.form[el.dataset.field] = el.value;
+      const search = e.target.closest('[data-search="true"]');
+      if (search) {
+        S.search = search.value;
+        renderResults();
+      }
+    });
+
+    root.addEventListener('change', e => {
+      const el = e.target.closest('[data-field]');
+      if (el) S.form[el.dataset.field] = el.value;
+      const filter = e.target.closest('[data-filter]');
+      if (filter) {
+        S[filter.dataset.filter] = filter.value;
+        renderResults();
+      }
+      if (e.target && e.target.dataset && e.target.dataset.upload === 'true' && e.target.files && e.target.files[0]) {
+        upload(e.target.files[0]);
+        e.target.value = '';
+      }
+    });
+
+    window.addEventListener('popstate', e => {
+      S.route = e.state && e.state.page ? e.state.page : 'pool';
+      S.params = e.state && e.state.params ? e.state.params : {};
+      loadRoute();
+    });
+
+    const initial = location.hash.replace(/^#\//, '');
+    S.route = ['login','pool','category','cart','place','mine','earnings','notices','detail','worker'].includes(initial) ? initial : 'pool';
+    history.replaceState({ page: S.route, params: {} }, '', '#/' + S.route);
+    api('/api/theme').then(t => { S.theme = t; }).catch(() => {}).finally(() => loadRoute());
+  </script>
+</body>
+</html>

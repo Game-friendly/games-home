@@ -1,0 +1,75 @@
+<view class="home-header">
+  <view class="header-row">
+    <text class="brand">{{theme.appName}}</text>
+    <view class="header-actions">
+      <van-button type="primary" size="mini" round bind:click="goPlace">发布</van-button>
+      <van-button type="primary" size="mini" round bind:click="load">刷新</van-button>
+    </view>
+  </view>
+  <van-search
+    value="{{search}}"
+    placeholder="搜索游戏、大神、需求关键词"
+    shape="round"
+    bind:change="onSearch"
+    bind:search="onSearch"
+  />
+  <view class="filters">
+    <picker range="{{['全部','A级','B级','C级']}}" value="{{gradeIndex}}" bindchange="onGradeFilter">
+      <view class="filter-item">{{gradeFilter}} ▾</view>
+    </picker>
+    <picker range="{{['全部','1人','2人以上']}}" value="{{peopleIndex}}" bindchange="onPeopleFilter">
+      <view class="filter-item">{{peopleFilter}} ▾</view>
+    </picker>
+    <picker range="{{['最新','价格从低到高','价格从高到低']}}" value="{{sortIndex}}" bindchange="onSortFilter">
+      <view class="filter-item">{{sort === 'price' ? '价格从低到高' : sort === 'priceDesc' ? '价格从高到低' : '最新'}} ▾</view>
+    </picker>
+  </view>
+  <view class="category-grid">
+    <view class="cat-tile" wx:for="{{theme.categories}}" wx:key="name" bindtap="goCategory" data-category="{{item.name}}">
+      <view class="cat-icon" style="background:{{item.color}}">{{item.icon}}</view>
+      <text class="cat-label">{{item.name}}</text>
+    </view>
+    <view class="cat-tile" bindtap="contactService">
+      <view class="cat-icon" style="background:#111318">💬</view>
+      <text class="cat-label">联系客服</text>
+    </view>
+  </view>
+</view>
+
+<view class="section-title">🔥 大神榜</view>
+<view class="worker-list" wx:if="{{topWorkers.length}}">
+  <view class="worker" wx:for="{{topWorkers}}" wx:key="id" bindtap="goWorker" data-id="{{item.id}}">
+    <view class="worker-avatar">{{item.avatar || '🎮'}}</view>
+    <view class="worker-main">
+      <view class="worker-name">{{item.nickname}}</view>
+      <view class="worker-meta"><text class="grade-tag grade-{{item.grade}}">{{item.grade}}级</text><text class="muted">胜率 {{item.winRate || 0}}% · 好评 {{item.rating || 0}}</text></view>
+    </view>
+    <view class="worker-right"><text class="price">¥{{item.minPriceYuan}}起</text><text class="muted">已接{{item.completed || 0}}单</text></view>
+  </view>
+</view>
+
+<view class="section-title">🎮 热门陪玩单</view>
+<view wx:if="{{loading}}" class="loading-wrap">
+  <van-loading size="24px">加载中...</van-loading>
+</view>
+
+<view wx:elif="{{!filtered.length}}" class="empty-wrap">
+  <van-empty description="暂无订单" />
+</view>
+
+<view wx:else class="product-grid">
+  <view class="product" wx:for="{{filtered}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+    <view class="thumb" style="background:{{item.catColor}}">
+      <text class="thumb-icon">{{item.catIcon}}</text>
+      <text class="thumb-cat">{{item.category}}</text>
+      <van-tag wx:if="{{item.badge}}" type="{{item.badge === '锁定中' ? 'warning' : 'primary'}}" class="thumb-tag">{{item.badge}}</van-tag>
+    </view>
+    <view class="info">
+      <view class="name">{{item.title}}</view>
+      <view class="price-row">
+        <text class="price">¥{{item.budgetYuan}}</text>
+        <van-tag plain="{{true}}" color="#666">{{item.requiredWorkers}}人</van-tag>
+      </view>
+    </view>
+  </view>
+</view>

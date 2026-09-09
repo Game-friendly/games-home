@@ -1,0 +1,4 @@
+.item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10rpx; }
+.main { flex: 1; }
+.title { font-weight: 600; }
+.empty { text-align: center; color: #999; padding: 100rpx 0; }

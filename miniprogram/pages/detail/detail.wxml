@@ -1,0 +1,76 @@
+<view class="topbar"><view class="back" bindtap="goBack">‹ 返回</view><text>订单详情</text></view>
+
+<view wx:if="{{order}}" class="card">
+  <view class="row">
+    <van-tag type="{{gradeTagType}}">{{order.grade}} 级</van-tag>
+    <text class="muted">单号 {{order.orderNo}}</text>
+  </view>
+  <view class="title">{{order.title}}</view>
+  <view class="price">¥{{budgetYuan}}</view>
+  <view class="desc">{{order.description || '无描述'}}</view>
+  <view class="muted">状态：{{statusText}}</view>
+  <view class="muted">需要 {{order.requiredWorkers}} 人 · 已接 {{order.filledWorkers}} 人</view>
+  <view class="muted" wx:if="{{order.category}}">分类：{{order.category}}</view>
+  <view class="muted" wx:if="{{order.contact}}">联系方式：{{order.contact}}</view>
+  <view class="muted" wx:if="{{order.status === 'DISPUTED'}}">该订单正在争议处理中</view>
+</view>
+
+<view wx:if="{{displayImages.length}}" class="card">
+  <view class="sec-title">凭证图片</view>
+  <view class="img-grid">
+    <van-image wx:for="{{displayImages}}" wx:key="*this" src="{{item}}" width="180rpx" height="180rpx" fit="cover" radius="8rpx" />
+  </view>
+</view>
+
+<view wx:if="{{workers.length}}" class="card">
+  <view class="sec-title">接单位置</view>
+  <view class="slot" wx:for="{{workers}}" wx:key="workerId">
+    <view class="slot-main">
+      <view>{{item.workerGrade || '?'}} 级接单人</view>
+      <view class="muted" wx:if="{{item.status === 'RESERVED'}}">保护期剩余 {{item.remain}} 秒</view>
+      <view class="muted" wx:else>{{item.status}}</view>
+      <view class="muted" wx:if="{{item.submittedAt}}">已交活</view>
+    </view>
+    <van-button wx:if="{{item.canSteal}}" size="small" type="primary" data-worker-id="{{item.workerId}}" bind:click="steal">抢单</van-button>
+  </view>
+</view>
+
+<view class="card">
+  <view class="sec-title">沟通留言</view>
+  <scroll-view class="chat-list" scroll-y wx:if="{{messages.length}}">
+    <view class="chat-msg {{item.senderId === myId ? 'mine' : ''}}" wx:for="{{messages}}" wx:key="id">
+      <view class="chat-meta"><text class="chat-name">{{item.senderName}}</text><text class="muted">{{item.createdAt}}</text></view>
+      <view class="chat-bubble">{{item.content}}</view>
+    </view>
+  </scroll-view>
+  <view wx:if="{{!messages.length}}" class="empty">暂无留言</view>
+  <view class="chat-input">
+    <input value="{{messageInput}}" bindinput="onMessageInput" placeholder="输入留言..." />
+    <van-button size="small" type="primary" bind:click="sendMessage">发送</van-button>
+  </view>
+</view>
+
+<view wx:if="{{isBuyer && order.status === 'COMPLETED'}}" class="card">
+  <view class="sec-title">评价接单人</view>
+  <view class="slot" wx:for="{{workers}}" wx:key="workerId">
+      <view class="slot-main">
+        <view>{{item.workerGrade || '?'}} 级接单人</view>
+      <view class="muted">{{item.reviewed ? '已评价' : '待评价'}}</view>
+      </view>
+    <van-button wx:if="{{!item.reviewed}}" size="small" type="primary" data-worker-id="{{item.workerId}}" bind:click="chooseReview">评价</van-button>
+  </view>
+  <view wx:if="{{reviewTarget}}" class="review">
+    <van-rate value="{{rating}}" bind:change="onRateChange" />
+    <van-button type="primary" size="small" bind:click="review">提交评价</van-button>
+  </view>
+</view>
+
+<view class="actions">
+  <van-button type="default" block round bind:click="toggleFavorite">{{favorited ? '取消收藏' : '收藏订单'}}</van-button>
+  <van-button wx:if="{{canPay}}" type="primary" block round bind:click="pay">去支付</van-button>
+  <van-button wx:if="{{canAccept}}" type="primary" block round bind:click="accept">接单</van-button>
+  <van-button wx:if="{{canWithdraw}}" type="default" plain block round bind:click="withdraw">取消接单</van-button>
+  <van-button wx:if="{{canComplete}}" type="primary" block round bind:click="complete">提交完成</van-button>
+  <van-button wx:if="{{canConfirm}}" type="primary" block round bind:click="confirm">确认完成</van-button>
+  <van-button wx:if="{{canDispute && !disputeOpen}}" type="default" plain block round bind:click="dispute">发起争议</van-button>
+</view>

@@ -1,0 +1,7 @@
+.login { padding-top: 48rpx; }
+.hero { display: flex; flex-direction: column; align-items: center; margin: 40rpx 0 56rpx; }
+.logo { font-size: 52rpx; font-weight: 700; color: #1a1a2e; }
+.slogan { margin-top: 16rpx; color: #999; font-size: 26rpx; }
+.wx-btn { margin: 0 32rpx; }
+.divider { display: flex; align-items: center; gap: 20rpx; margin: 40rpx 48rpx 24rpx; color: #bbb; font-size: 24rpx; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1rpx; background: #eee; }

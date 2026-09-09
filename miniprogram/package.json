@@ -1,0 +1,9 @@
+{
+  "name": "order-platform-miniprogram",
+  "version": "0.3.0",
+  "private": true,
+  "description": "跑腿接单小程序（Vant Weapp UI）",
+  "dependencies": {
+    "@vant/weapp": "^1.11.7"
+  }
+}

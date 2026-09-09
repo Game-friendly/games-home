@@ -1,0 +1,15 @@
+# 生产环境 PostgreSQL 配置示例。
+# 使用方式：java -jar app.jar --spring.profiles.active=postgres
+# 需要本机先起 PostgreSQL（仓库已附 docker-compose.yml）。
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/order_platform}
+    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres123}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+
+app:
+  seed-demo-data: ${SEED_DEMO_DATA:false}
